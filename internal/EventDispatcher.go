@@ -25,6 +25,7 @@ func (e * EventDispatcher) HandleCheckpoint(checkpoint *Checkpoint) error {
 	for _, q := range e.Handlers {
 		q.Queue <- checkpoint
 	}
+
 	return nil
 }
 

@@ -8,31 +8,6 @@ import (
 	"strconv"
 )
 
-type Access struct {
-	AccessType flatbuffers.AccessType
-	InstAddr   uint64
-	DestAddr   uint64
-	InstBefore uint64
-}
-
-// Different from the one flatbuffer
-type Checkpoint struct {
-	Id         string
-	Pos        int
-	InstBefore uint64
-}
-
-type Event interface {
-	VisitHandler(handler EventHandler)
-}
-
-type EventHandler interface {
-	HandleAccess(access *Access) error
-	HandleCheckpoint(checkpoint *Checkpoint) error
-	Start()
-	Stop()
-}
-
 type EventParser struct {
 	Handler EventHandler;
 	pos int
@@ -89,14 +64,4 @@ func (p *EventParser) Parse(reader * bufio.Reader) error {
 	}
 
 	return nil
-}
-
-
-
-func (a * Access) VisitHandler (handler EventHandler) {
-	handler.HandleAccess(a)
-}
-
-func (c * Checkpoint) VisitHandler (handler EventHandler) {
-	handler.HandleCheckpoint(c)
 }
