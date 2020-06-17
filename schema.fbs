@@ -1,0 +1,15 @@
+table Checkpoint {
+    id: string;
+    pos: ulong;
+}
+
+enum AccessType : byte { I, R, W }
+
+table BaseProfile {
+    checkpoints: [Checkpoint];
+
+    AccessType: [AccessType];
+    InstAddr: [ulong];
+    DestAddr: [ulong];
+    InstBefore: [ulong];
+}
