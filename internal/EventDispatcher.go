@@ -55,6 +55,8 @@ func WaitForEvent(handler EventHandler, queue chan Event, done chan bool) {
 }
 
 func (e *EventDispatcher) Finalize() {
-
+	for _, handler := range e.Handlers {
+		handler.Finalize()
+	}
 }
 
