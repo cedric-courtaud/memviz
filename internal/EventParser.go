@@ -13,6 +13,10 @@ type EventParser struct {
 	pos int
 }
 
+func NewEventParser(h EventHandler) *EventParser {
+	return &EventParser{h, 0}
+}
+
 func (p *EventParser) parseLine(line []byte) error {
 	if len(line) == 0 {
 		return nil
