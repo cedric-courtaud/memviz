@@ -160,41 +160,43 @@ func (s * StreamStats) HandleCheckpoint(checkpoint *Checkpoint) error {
 
 func (s StreamStats) WriteSummary(writer io.Writer) error {
 	w := new(tabwriter.Writer)
-	w.Init(writer, 8, 8, 0, ' ', 0)
+	w.Init(writer, 0, 0, 2, ' ', tabwriter.AlignRight)
 	defer w.Flush()
+
+	if len(s.phaseStats) > 0 {
+		s.phaseStats[0].WriteSummaryHeader(w)
+	}
 
 	for _, phase := range s.phaseStats {
 		phase.WriteSummary(w)
 	}
 
-
 	return nil
 }
 
 func (p phaseStats) WriteSummaryHeader(writer io.Writer) {
-	fmt.Fprintf(writer, "%s %s %s", "Phase", "NAccess", "NInv")
+	fmt.Fprintf(writer, "%s\t%s\t%s", "Phase", "NAccess", "NInv")
 
 	for _, s := range p.addrSliceSpec.Slices {
-		s := fmt.Sprintf("HdAdrr[%d, %d]", s.begin, s.end)
-		fmt.Fprintf(writer, " %s", s)
-
+		s := fmt.Sprintf("HdAddr[%d:%d]", s.begin, s.end)
+		fmt.Fprintf(writer, "\t%s", s)
 	}
 
-	fmt.Fprintf(writer, "%s %s %s", "---", "---", "---")
+	fmt.Fprintf(writer, "\t\n%s\t%s\t%s", "---", "---", "---")
 
 	for _, _ = range p.addrSliceSpec.Slices {
-		fmt.Fprintf(writer, " %s", "---")
+		fmt.Fprintf(writer, "\t%s", "---")
 	}
 
-	fmt.Fprintf(writer, "\n")
+	fmt.Fprintf(writer, "\t\n")
 }
 
 func (p phaseStats) WriteSummary(writer io.Writer) {
-	fmt.Fprintf(writer, "%s %d %d", p.Id, p.AccessCount, p.InversionCount)
+	fmt.Fprintf(writer, "%s\t%d\t%d", p.Id, p.AccessCount, p.InversionCount)
 	for _, s := range p.addrSliceSpec.Slices {
 		m := p.addrDiffCount[s.mask]
-		fmt.Fprintf(writer, " %f", ShannonEntropy(m, p.AccessCount - 1))
+		fmt.Fprintf(writer, "\t%f", ShannonEntropy(m, p.AccessCount - 1))
 	}
 
-	fmt.Fprintf(writer, "\n")
+	fmt.Fprintf(writer, "\t\n")
 }
