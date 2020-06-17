@@ -9,6 +9,9 @@ type EventLogger struct {
 	Events []string
 }
 
+func (e *EventLogger) Finalize() {
+}
+
 func (e *EventLogger) Start() {
 }
 
@@ -26,3 +29,4 @@ func (e *EventLogger) HandleCheckpoint(c * Checkpoint) error {
 	e.Events = append(e.Events, fmt.Sprintf("C %s %d", c.Id, c.InstBefore))
 	return nil
 }
+

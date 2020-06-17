@@ -10,7 +10,7 @@ func NewEventDispatcher() *EventDispatcher {
 }
 
 func (e * EventDispatcher) AddHandler(handler EventHandler) {
-	e.Handlers = append(e.Handlers, NewEventQueue(&handler))
+	e.Handlers = append(e.Handlers, NewEventQueue(handler))
 }
 
 func (e * EventDispatcher) HandleAccess(access *Access) error {
@@ -54,4 +54,7 @@ func WaitForEvent(handler EventHandler, queue chan Event, done chan bool) {
 	done <- true
 }
 
+func (e *EventDispatcher) Finalize() {
+
+}
 

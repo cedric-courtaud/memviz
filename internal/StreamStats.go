@@ -55,6 +55,10 @@ type StreamStats struct {
 	Writer io.Writer
 }
 
+func (s *StreamStats) Finalize() {
+	s.WriteSummary(s.Writer)
+}
+
 func (s * StreamStats) Start() {}
 
 func (s * StreamStats) Stop() {

@@ -5,4 +5,5 @@ type EventHandler interface {
 	HandleCheckpoint(checkpoint *Checkpoint) error
 	Start()
 	Stop()
+	Finalize()
 }
