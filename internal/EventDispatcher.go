@@ -28,7 +28,6 @@ func (e *EventQueue) HandleCheckpoint(checkpoint *Checkpoint) error {
 	return nil
 }
 
-
 type EventDispatcher struct {
 	eventQueue chan Event
 	Handlers []*EventQueue
