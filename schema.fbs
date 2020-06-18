@@ -1,6 +1,7 @@
 table Checkpoint {
     id: string;
     pos: ulong;
+    instBefore: ulong;
 }
 
 enum AccessType : byte { I, R, W }
