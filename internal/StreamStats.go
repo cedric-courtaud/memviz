@@ -62,9 +62,10 @@ func (s *StreamStats) Finalize() {
 func (s * StreamStats) Start() {}
 
 func (s * StreamStats) Stop() {
+	/*
 	if (s.Writer != nil) {
 		s.WriteSummary(s.Writer)
-	}
+	}*/
 }
 
 func (p * phaseStats) updateCount() {
@@ -193,9 +194,13 @@ func (p phaseStats) WriteSummaryHeader(writer io.Writer) {
 
 func (p phaseStats) WriteSummary(writer io.Writer) {
 	fmt.Fprintf(writer, "%s\t%d\t%d", p.Id, p.AccessCount, p.InversionCount)
-	for _, s := range p.addrSliceSpec.Slices {
+	for i, s := range p.addrSliceSpec.Slices {
+		total := p.AccessCount
+		if i == 0 {
+			total -= 1
+		}
 		m := p.addrDiffCount[s.mask]
-		fmt.Fprintf(writer, "\t%f", ShannonEntropy(m, p.AccessCount - 1))
+		fmt.Fprintf(writer, "\t%f", ShannonEntropy(m, total))
 	}
 
 	fmt.Fprintf(writer, "\t\n")

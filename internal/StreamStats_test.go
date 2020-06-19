@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/realistschuckle/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"memrec/internal/flatbuffers"
 	"testing"
 )
@@ -108,6 +108,44 @@ func TestShannonEntropy(t *testing.T) {
 
 	h = ShannonEntropy(m, 4)
 	assert.Equal(t, h, 2.0)
+}
+
+func TestShannonEntropySmallInput(t *testing.T) {
+	conf, _ := NewStatsConfig("8:8:11:5")
+	stats := NewStreamStats(conf)
+
+	//C memviz_begin 0
+	stats.HandleCheckpoint(&Checkpoint{"memviz_begin", 0, 0})
+	//I 0x10 0x0 13
+	stats.HandleAccess(&Access{flatbuffers.AccessTypeI, 0x10, 0x0, 13})
+	//R 0x18 0x8 23
+	stats.HandleAccess(&Access{flatbuffers.AccessTypeR, 0x18, 0x8, 23})
+	//W 0x1c 0xc 33
+	stats.HandleAccess(&Access{flatbuffers.AccessTypeW, 0x1c, 0xc, 33})
+	//C p1 12
+	stats.HandleCheckpoint(&Checkpoint{"memviz_begin", 3, 0})
+	//R 0x20 0x0 43
+	stats.HandleAccess(&Access{flatbuffers.AccessTypeR, 0x10, 0x0, 13})
+	//W 0x28 0x8 53
+	stats.HandleAccess(&Access{flatbuffers.AccessTypeW, 0x18, 0x8, 23})
+	//R 0x2c 0xc 63
+	stats.HandleAccess(&Access{flatbuffers.AccessTypeR, 0x1c, 0xc, 33})
+	//C memviz_end 3
+	stats.HandleCheckpoint(&Checkpoint{"memviz_end", 6, 3})
+
+	slices := conf.AddrSlicing.Slices
+	p := stats.phaseStats[0]
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[0].mask], p.AccessCount - 1), 1.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[1].mask], p.AccessCount - 1), 0.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[2].mask], p.AccessCount - 1), 0.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[3].mask], p.AccessCount - 1), 0.0)
+
+	p = stats.phaseStats[1]
+	assert.InDelta(t, ShannonEntropy(p.addrDiffCount[slices[0].mask], p.AccessCount), 1.5849, 0.0001)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[1].mask], p.AccessCount), 0.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[2].mask], p.AccessCount), 0.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[3].mask], p.AccessCount), 0.0)
+
 }
 
 func TestStreamStats(t *testing.T) {
