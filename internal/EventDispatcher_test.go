@@ -2,7 +2,7 @@ package internal
 
 import (
 	"bufio"
-	"github.com/realistschuckle/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 )
