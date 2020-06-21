@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
 	"memrec/internal/flatbuffers"
 	"strconv"
 )
@@ -51,21 +52,47 @@ func (p *EventParser) parseLine(line []byte) error {
 		p.pos = p.pos + 1
 		p.Handler.HandleAccess(&Access{accessType, instAddr, destAddr, accessBefore})
 	} else {
-		return errors.New("Invalid event identifier")
+		s := fmt.Sprintf("Line %d: %s\nInvalid event identifier", p.pos, line)
+		return errors.New(s)
 	}
 
 	return nil
 }
 
-func (p *EventParser) Parse(reader * bufio.Reader) error {
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		err := p.parseLine(scanner.Bytes())
-
+func (p * EventParser) start(done chan bool, errc chan error, queue chan []byte) {
+	for line := range queue {
+		err := p.parseLine(line)
 		if err != nil {
-			return err
+			errc <- err
 		}
 	}
+
+	done <- true
+}
+
+func (p *EventParser) Parse(reader * bufio.Reader) error {
+	scanner := bufio.NewScanner(reader)
+	done := make(chan bool)
+	queue := make(chan []byte)
+	errc := make(chan error, 1)
+
+	go p.start(done, errc, queue)
+
+	for scanner.Scan() {
+		var buff []byte
+		copy(buff, scanner.Bytes())
+		queue <- buff
+
+		select {
+		case err := <- errc:
+			return err
+		default:
+			continue
+		}
+	}
+
+	close(queue)
+	<- done
 
 	return nil
 }
