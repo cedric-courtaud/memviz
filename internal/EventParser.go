@@ -5,13 +5,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"memrec/internal/flatbuffers"
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	"strconv"
 )
 
 type EventParser struct {
-	Handler EventHandler;
-	pos int
+	Handler EventHandler
+	pos     int
 }
 
 func NewEventParser(h EventHandler) *EventParser {
@@ -59,7 +59,7 @@ func (p *EventParser) parseLine(line []byte) error {
 	return nil
 }
 
-func (p * EventParser) start(done chan bool, errc chan error, queue chan []byte) {
+func (p *EventParser) start(done chan bool, errc chan error, queue chan []byte) {
 	for line := range queue {
 		err := p.parseLine(line)
 		if err != nil {
@@ -70,7 +70,7 @@ func (p * EventParser) start(done chan bool, errc chan error, queue chan []byte)
 	done <- true
 }
 
-func (p *EventParser) Parse(reader * bufio.Reader) error {
+func (p *EventParser) Parse(reader *bufio.Reader) error {
 	scanner := bufio.NewScanner(reader)
 	done := make(chan bool)
 	queue := make(chan []byte)
@@ -85,7 +85,7 @@ func (p *EventParser) Parse(reader * bufio.Reader) error {
 		queue <- buff
 
 		select {
-		case err := <- errc:
+		case err := <-errc:
 			return err
 		default:
 			continue
@@ -93,7 +93,7 @@ func (p *EventParser) Parse(reader * bufio.Reader) error {
 	}
 
 	close(queue)
-	<- done
+	<-done
 
 	return nil
 }

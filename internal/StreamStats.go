@@ -3,17 +3,17 @@ package internal
 import (
 	"errors"
 	"fmt"
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	"io"
 	"math"
-	"memrec/internal/flatbuffers"
 	"text/tabwriter"
 )
 
 type StatsConfig struct {
-	AddrSlicing * AddrSlicing
+	AddrSlicing *AddrSlicing
 }
 
-func NewStatsConfig (sliceSpec string) (*StatsConfig, error) {
+func NewStatsConfig(sliceSpec string) (*StatsConfig, error) {
 	s, err := ParseAddrSlicing(sliceSpec)
 
 	if err != nil {
@@ -24,15 +24,15 @@ func NewStatsConfig (sliceSpec string) (*StatsConfig, error) {
 }
 
 type phaseStats struct {
-	Id string
-	AccessCount uint64
+	Id             string
+	AccessCount    uint64
 	InversionCount uint64
 	previousAccess *Access
-	addrSliceSpec *AddrSlicing
-	addrDiffCount map[uint64]map[uint64]uint64
+	addrSliceSpec  *AddrSlicing
+	addrDiffCount  map[uint64]map[uint64]uint64
 }
 
-func newPhaseStats(Id string, conf * StatsConfig) phaseStats {
+func newPhaseStats(Id string, conf *StatsConfig) phaseStats {
 	diff := make(map[uint64]map[uint64]uint64)
 
 	for _, slice := range conf.AddrSlicing.Slices {
@@ -40,55 +40,55 @@ func newPhaseStats(Id string, conf * StatsConfig) phaseStats {
 	}
 
 	return phaseStats{
-		Id: Id,
-		AccessCount: 0,
+		Id:             Id,
+		AccessCount:    0,
 		InversionCount: 0,
 		previousAccess: nil,
-		addrSliceSpec: conf.AddrSlicing,
-		addrDiffCount: diff,
+		addrSliceSpec:  conf.AddrSlicing,
+		addrDiffCount:  diff,
 	}
 }
 
 type StreamStats struct {
-	Config * StatsConfig
+	Config     *StatsConfig
 	phaseStats []phaseStats
-	Writer io.Writer
+	Writer     io.Writer
 }
 
 func (s *StreamStats) Finalize() {
 	s.WriteSummary(s.Writer)
 }
 
-func (s * StreamStats) Start() {}
+func (s *StreamStats) Start() {}
 
-func (s * StreamStats) Stop() {
+func (s *StreamStats) Stop() {
 	/*
-	if (s.Writer != nil) {
-		s.WriteSummary(s.Writer)
-	}*/
+		if (s.Writer != nil) {
+			s.WriteSummary(s.Writer)
+		}*/
 }
 
-func (p * phaseStats) updateCount() {
+func (p *phaseStats) updateCount() {
 	p.AccessCount += 1
 }
 
-func (p * phaseStats) updatePreviousAccess(access *Access) {
-	p.previousAccess = access;
+func (p *phaseStats) updatePreviousAccess(access *Access) {
+	p.previousAccess = access
 }
 
 func isRead(access Access) bool {
 	return access.AccessType != flatbuffers.AccessTypeW
 }
 
-func (p * phaseStats) updateInversionCount(access *Access) {
-	if (p.previousAccess != nil) {
+func (p *phaseStats) updateInversionCount(access *Access) {
+	if p.previousAccess != nil {
 		if isRead(*access) != isRead(*p.previousAccess) {
 			p.InversionCount += 1
 		}
 	}
 }
 
-func ShannonEntropy(dist map[uint64]uint64 , total uint64) float64 {
+func ShannonEntropy(dist map[uint64]uint64, total uint64) float64 {
 	var ret float64 = 0.0
 	var n float64 = float64(total)
 
@@ -100,7 +100,7 @@ func ShannonEntropy(dist map[uint64]uint64 , total uint64) float64 {
 	return ret
 }
 
-func (p * phaseStats) updateAddressDiffCount(access *Access){
+func (p *phaseStats) updateAddressDiffCount(access *Access) {
 	if p.previousAccess == nil {
 		return
 	}
@@ -114,7 +114,7 @@ func (p * phaseStats) updateAddressDiffCount(access *Access){
 	}
 }
 
-func (p * phaseStats) handleAccess(access *Access) {
+func (p *phaseStats) handleAccess(access *Access) {
 	p.updateCount()
 	p.updateInversionCount(access)
 	p.updateAddressDiffCount(access)
@@ -122,19 +122,19 @@ func (p * phaseStats) handleAccess(access *Access) {
 	p.updatePreviousAccess(access)
 }
 
-func NewStreamStats(config * StatsConfig) *StreamStats{
+func NewStreamStats(config *StatsConfig) *StreamStats {
 	return &StreamStats{Config: config}
 }
 
-func  (s StreamStats) getCurrentPhase() (*phaseStats, error) {
+func (s StreamStats) getCurrentPhase() (*phaseStats, error) {
 	if len(s.phaseStats) == 0 {
 		return nil, errors.New("Access does not belong to any phase")
 	}
 
-	return &s.phaseStats[len(s.phaseStats) - 1], nil
+	return &s.phaseStats[len(s.phaseStats)-1], nil
 }
 
-func (s * StreamStats) HandleAccess(access *Access) error {
+func (s *StreamStats) HandleAccess(access *Access) error {
 	p, err := s.getCurrentPhase()
 	if err != nil {
 		return err
@@ -144,7 +144,7 @@ func (s * StreamStats) HandleAccess(access *Access) error {
 	return nil
 }
 
-func (s * StreamStats) HandleCheckpoint(checkpoint *Checkpoint) error {
+func (s *StreamStats) HandleCheckpoint(checkpoint *Checkpoint) error {
 	p := newPhaseStats(checkpoint.Id, s.Config)
 
 	lastPhase, err := s.getCurrentPhase()
@@ -157,7 +157,6 @@ func (s * StreamStats) HandleCheckpoint(checkpoint *Checkpoint) error {
 
 	return nil
 }
-
 
 func (s StreamStats) WriteSummary(writer io.Writer) error {
 	w := new(tabwriter.Writer)

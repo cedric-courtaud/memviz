@@ -2,7 +2,7 @@ package internal
 
 import (
 	"fmt"
-	"memrec/internal/flatbuffers"
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 )
 
 type EventLogger struct {
@@ -25,8 +25,7 @@ func (e *EventLogger) HandleAccess(access *Access) error {
 	return nil
 }
 
-func (e *EventLogger) HandleCheckpoint(c * Checkpoint) error {
+func (e *EventLogger) HandleCheckpoint(c *Checkpoint) error {
 	e.Events = append(e.Events, fmt.Sprintf("C %s %d", c.Id, c.InstBefore))
 	return nil
 }
-

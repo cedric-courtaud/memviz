@@ -2,15 +2,14 @@ package internal
 
 import (
 	"bufio"
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	"github.com/stretchr/testify/assert"
-	"memrec/internal/flatbuffers"
 	"strings"
 	"testing"
 )
 
-
 func TestEventParser_Parse(t *testing.T) {
-	example := []string {"C p1 12",
+	example := []string{"C p1 12",
 		"I 0x11 0x12 13",
 		"R 0x11 0x12 13",
 		"W 0x11 0x12 13",

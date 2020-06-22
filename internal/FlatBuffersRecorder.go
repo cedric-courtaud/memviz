@@ -1,32 +1,32 @@
 package internal
 
 import (
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	fb "github.com/google/flatbuffers/go"
 	"io"
-	"memrec/internal/flatbuffers"
 )
 
 const DEFAULT_CAPACITY = (1 << 20)
 
 type layers struct {
-	instAddr 	[]uint64
-	destAddr	[]uint64
-	instBefore	[]uint64
-	accessType	[]flatbuffers.AccessType
+	instAddr   []uint64
+	destAddr   []uint64
+	instBefore []uint64
+	accessType []flatbuffers.AccessType
 }
 
 type FlatBuffersRecorder struct {
 	checkpoints []*Checkpoint
-	layers layers
+	layers      layers
 
 	writer io.Writer
 }
 
-func NewFlatBuffersRecorder (writer io.Writer) *FlatBuffersRecorder {
+func NewFlatBuffersRecorder(writer io.Writer) *FlatBuffersRecorder {
 	return &FlatBuffersRecorder{
 		layers: layers{
-			instAddr: make([]uint64, 0, DEFAULT_CAPACITY),
-			destAddr: make([]uint64, 0, DEFAULT_CAPACITY),
+			instAddr:   make([]uint64, 0, DEFAULT_CAPACITY),
+			destAddr:   make([]uint64, 0, DEFAULT_CAPACITY),
 			instBefore: make([]uint64, 0, DEFAULT_CAPACITY),
 			accessType: make([]flatbuffers.AccessType, 0, DEFAULT_CAPACITY),
 		},
@@ -35,7 +35,7 @@ func NewFlatBuffersRecorder (writer io.Writer) *FlatBuffersRecorder {
 	}
 }
 
-func (f * FlatBuffersRecorder) HandleAccess(access *Access) error {
+func (f *FlatBuffersRecorder) HandleAccess(access *Access) error {
 	f.layers.instAddr = append(f.layers.instAddr, access.InstAddr)
 	f.layers.destAddr = append(f.layers.destAddr, access.DestAddr)
 	f.layers.instBefore = append(f.layers.instBefore, access.InstBefore)
@@ -44,16 +44,16 @@ func (f * FlatBuffersRecorder) HandleAccess(access *Access) error {
 	return nil
 }
 
-func (f * FlatBuffersRecorder) HandleCheckpoint(checkpoint *Checkpoint) error {
+func (f *FlatBuffersRecorder) HandleCheckpoint(checkpoint *Checkpoint) error {
 	f.checkpoints = append(f.checkpoints, checkpoint)
 
 	return nil
 }
 
-func (f * FlatBuffersRecorder) Start() {
+func (f *FlatBuffersRecorder) Start() {
 }
 
-func (f * FlatBuffersRecorder) Stop() {
+func (f *FlatBuffersRecorder) Stop() {
 }
 
 func (f FlatBuffersRecorder) Finalize() {
@@ -125,4 +125,3 @@ func (f FlatBuffersRecorder) Finalize() {
 		panic(err)
 	}
 }
-

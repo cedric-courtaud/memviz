@@ -4,32 +4,32 @@ import (
 	"bufio"
 	"errors"
 	"flag"
+	"github.com/cedric-courtaud/memviz/internal"
 	"io"
-	"memrec/internal"
 	"os"
 )
 
-type MemRecConfig struct {
+type MemvizConfig struct {
 	SliceSpecString       string
 	ComputeStats          bool
-	StatsOutputWriter 	  io.Writer
+	StatsOutputWriter     io.Writer
 	RecordInFlatBuffers   bool
 	FlatBuffersOutputPath string
-	InputPath 			  string
-	InputReader 		  io.Reader
-	Dispatcher			  *internal.EventDispatcher
-	GenerateImage		  bool
-	ImageOutputPath		  string
-	Beta				  float64
-	Height				  int
-	Width				  int
+	InputPath             string
+	InputReader           io.Reader
+	Dispatcher            *internal.EventDispatcher
+	GenerateImage         bool
+	ImageOutputPath       string
+	Beta                  float64
+	Height                int
+	Width                 int
 	InstructionPerColumn  int
 }
 
-func afterCLIParseInit(config * MemRecConfig) error {
+func afterCLIParseInit(config *MemvizConfig) error {
 	config.Dispatcher = internal.NewEventDispatcher()
 
-	if (config.ComputeStats) {
+	if config.ComputeStats {
 		sc, err := internal.NewStatsConfig(config.SliceSpecString)
 
 		if err != nil {
@@ -43,7 +43,7 @@ func afterCLIParseInit(config * MemRecConfig) error {
 		config.Dispatcher.AddHandler(stats)
 	}
 
-	if (config.RecordInFlatBuffers) {
+	if config.RecordInFlatBuffers {
 		f, err := os.Create(config.FlatBuffersOutputPath)
 		if err != nil {
 			return err
@@ -52,7 +52,7 @@ func afterCLIParseInit(config * MemRecConfig) error {
 		config.Dispatcher.AddHandler(internal.NewFlatBuffersRecorder(f))
 	}
 
-	if (config.GenerateImage) {
+	if config.GenerateImage {
 		// This line will be removed once fixed width image generation is implemented
 		config.Width = 0
 
@@ -99,12 +99,10 @@ func afterCLIParseInit(config * MemRecConfig) error {
 		config.InputReader = f
 	}
 
-
-
 	return nil
 }
 
-func ParseCLIArgs(config * MemRecConfig) error {
+func ParseCLIArgs(config *MemvizConfig) error {
 	flag.StringVar(&config.FlatBuffersOutputPath, "record-to", "", "")
 	flag.BoolVar(&config.ComputeStats, "stats", false, "")
 	flag.StringVar(&config.SliceSpecString, "addr-slicing", "8:8:11:5", "")
@@ -134,7 +132,7 @@ func ParseCLIArgs(config * MemRecConfig) error {
 	return afterCLIParseInit(config)
 }
 
-func Run(config * MemRecConfig) error {
+func Run(config *MemvizConfig) error {
 	reader := bufio.NewReader(config.InputReader)
 	parser := internal.NewEventParser(config.Dispatcher)
 	config.Dispatcher.Start()
@@ -151,7 +149,7 @@ func Run(config * MemRecConfig) error {
 }
 
 func main() {
-	config := MemRecConfig{
+	config := MemvizConfig{
 		SliceSpecString:       "",
 		ComputeStats:          false,
 		StatsOutputWriter:     nil,

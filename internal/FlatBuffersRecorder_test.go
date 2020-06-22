@@ -2,8 +2,8 @@ package internal
 
 import (
 	"bytes"
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	"github.com/stretchr/testify/assert"
-	"memrec/internal/flatbuffers"
 	"testing"
 )
 
@@ -53,7 +53,7 @@ func TestFlatBuffersRecorder(t *testing.T) {
 
 	rec.Finalize()
 
-	profile := flatbuffers.GetRootAsBaseProfile(buf.Bytes(),0)
+	profile := flatbuffers.GetRootAsBaseProfile(buf.Bytes(), 0)
 
 	assert.Equal(t, profile.CheckpointsLength(), 2)
 	c := flatbuffers.Checkpoint{}
@@ -89,4 +89,3 @@ func TestFlatBuffersRecorder(t *testing.T) {
 	assert.Equal(t, profile.DestAddr(3), uint64(0x43))
 	assert.Equal(t, profile.InstBefore(3), uint64(44))
 }
-

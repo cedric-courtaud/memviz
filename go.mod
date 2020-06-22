@@ -1,4 +1,4 @@
-module memrec
+module github.com/cedric-courtaud/memviz
 
 go 1.14
 

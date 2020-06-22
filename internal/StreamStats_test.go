@@ -1,8 +1,8 @@
 package internal
 
 import (
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	"github.com/stretchr/testify/assert"
-	"memrec/internal/flatbuffers"
 	"testing"
 )
 
@@ -20,10 +20,10 @@ func Test_phaseStats_handleAccess(t *testing.T) {
 	assert.Equal(t, p.AccessCount, uint64(1))
 	assert.Equal(t, p.InversionCount, uint64(0))
 
-	assert.Equal(t, p.addrDiffCount[3][0],  uint64(0))
-	assert.Equal(t, p.addrDiffCount[3][1],  uint64(0))
-	assert.Equal(t, p.addrDiffCount[3][2],  uint64(0))
-	assert.Equal(t, p.addrDiffCount[3][3],  uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][0], uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][1], uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][2], uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][3], uint64(0))
 
 	assert.Equal(t, p.addrDiffCount[12][0], uint64(0))
 	assert.Equal(t, p.addrDiffCount[12][1], uint64(0))
@@ -40,10 +40,10 @@ func Test_phaseStats_handleAccess(t *testing.T) {
 	assert.Equal(t, p.AccessCount, uint64(2))
 	assert.Equal(t, p.InversionCount, uint64(0))
 
-	assert.Equal(t, p.addrDiffCount[3][0],  uint64(0))
-	assert.Equal(t, p.addrDiffCount[3][1],  uint64(1))
-	assert.Equal(t, p.addrDiffCount[3][2],  uint64(0))
-	assert.Equal(t, p.addrDiffCount[3][3],  uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][0], uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][1], uint64(1))
+	assert.Equal(t, p.addrDiffCount[3][2], uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][3], uint64(0))
 
 	assert.Equal(t, p.addrDiffCount[12][0], uint64(0))
 	assert.Equal(t, p.addrDiffCount[12][1], uint64(1))
@@ -60,10 +60,10 @@ func Test_phaseStats_handleAccess(t *testing.T) {
 	assert.Equal(t, p.AccessCount, uint64(3))
 	assert.Equal(t, p.InversionCount, uint64(1))
 
-	assert.Equal(t, p.addrDiffCount[3][0],  uint64(0))
-	assert.Equal(t, p.addrDiffCount[3][1],  uint64(1))
-	assert.Equal(t, p.addrDiffCount[3][2],  uint64(1))
-	assert.Equal(t, p.addrDiffCount[3][3],  uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][0], uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][1], uint64(1))
+	assert.Equal(t, p.addrDiffCount[3][2], uint64(1))
+	assert.Equal(t, p.addrDiffCount[3][3], uint64(0))
 
 	assert.Equal(t, p.addrDiffCount[12][0], uint64(0))
 	assert.Equal(t, p.addrDiffCount[12][1], uint64(1))
@@ -80,10 +80,10 @@ func Test_phaseStats_handleAccess(t *testing.T) {
 	assert.Equal(t, p.AccessCount, uint64(4))
 	assert.Equal(t, p.InversionCount, uint64(2))
 
-	assert.Equal(t, p.addrDiffCount[3][0],  uint64(0))
-	assert.Equal(t, p.addrDiffCount[3][1],  uint64(2))
-	assert.Equal(t, p.addrDiffCount[3][2],  uint64(1))
-	assert.Equal(t, p.addrDiffCount[3][3],  uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][0], uint64(0))
+	assert.Equal(t, p.addrDiffCount[3][1], uint64(2))
+	assert.Equal(t, p.addrDiffCount[3][2], uint64(1))
+	assert.Equal(t, p.addrDiffCount[3][3], uint64(0))
 
 	assert.Equal(t, p.addrDiffCount[12][0], uint64(0))
 	assert.Equal(t, p.addrDiffCount[12][1], uint64(2))
@@ -135,10 +135,10 @@ func TestShannonEntropySmallInput(t *testing.T) {
 
 	slices := conf.AddrSlicing.Slices
 	p := stats.phaseStats[0]
-	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[0].mask], p.AccessCount - 1), 1.0)
-	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[1].mask], p.AccessCount - 1), 0.0)
-	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[2].mask], p.AccessCount - 1), 0.0)
-	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[3].mask], p.AccessCount - 1), 0.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[0].mask], p.AccessCount-1), 1.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[1].mask], p.AccessCount-1), 0.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[2].mask], p.AccessCount-1), 0.0)
+	assert.Equal(t, ShannonEntropy(p.addrDiffCount[slices[3].mask], p.AccessCount-1), 0.0)
 
 	p = stats.phaseStats[1]
 	assert.InDelta(t, ShannonEntropy(p.addrDiffCount[slices[0].mask], p.AccessCount), 1.5849, 0.0001)

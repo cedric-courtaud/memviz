@@ -1,11 +1,11 @@
 package internal
 
 import (
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	"image"
 	"image/color"
 	"image/png"
 	"io"
-	"memrec/internal/flatbuffers"
 )
 
 const DEFAULT_IMAGE_GENERATOR_CAPACITY = 2048
@@ -18,7 +18,7 @@ type AccessCount struct {
 
 type CheckpointPos struct {
 	Checkpoint *Checkpoint
-	XPos		int
+	XPos       int
 }
 
 type ImageGenerator struct {
@@ -31,23 +31,23 @@ type ImageGenerator struct {
 	instBefore           uint64
 	yPositioners         []*YPositioner
 	yPos                 []int
-	checkpoints			 []CheckpointPos
-	Beta			     float32
-	Writer io.Writer
+	checkpoints          []CheckpointPos
+	Beta                 float32
+	Writer               io.Writer
 }
 
-func (i * ImageGenerator) pushNewRow() {
+func (i *ImageGenerator) pushNewRow() {
 	row := make([]AccessCount, i.Height)
 	i.buff = append(i.buff, row)
 	i.Width += 1
 }
 
-func (i * ImageGenerator) getXPos(progress uint64) int {
+func (i *ImageGenerator) getXPos(progress uint64) int {
 
 	return int(progress) / i.InstructionPerColumn
 }
 
-func (i * ImageGenerator) getYPos(a * Access, buff []int) {
+func (i *ImageGenerator) getYPos(a *Access, buff []int) {
 	addr := a.DestAddr
 
 	for j, positioner := range i.yPositioners {
@@ -60,24 +60,24 @@ func (i * ImageGenerator) getYPos(a * Access, buff []int) {
 }
 
 type YPositioner struct {
-	slice * AddrSlice
+	slice       *AddrSlice
 	LayerHeight int
-	Offset int
+	Offset      int
 }
 
-func NewYPositioner(slice * AddrSlice, totalHeight, totalAddrBits int) *YPositioner {
-	hLayer := int((float32(slice.end - slice.begin) / float32(totalAddrBits)) * float32(totalHeight))
+func NewYPositioner(slice *AddrSlice, totalHeight, totalAddrBits int) *YPositioner {
+	hLayer := int((float32(slice.end-slice.begin) / float32(totalAddrBits)) * float32(totalHeight))
 	offset := int((float32(slice.begin) / float32(totalAddrBits)) * float32(totalHeight))
 
 	return &YPositioner{
-		slice: slice,
+		slice:       slice,
 		LayerHeight: hLayer,
-		Offset: offset,
+		Offset:      offset,
 	}
 }
 
-func (p * YPositioner) GetYPos(value uint64) int {
-	return int((float64(value) / float64(p.slice.nVal)) * float64(p.LayerHeight)) + p.Offset
+func (p *YPositioner) GetYPos(value uint64) int {
+	return int((float64(value)/float64(p.slice.nVal))*float64(p.LayerHeight)) + p.Offset
 }
 
 func NewImageGenerator(Height, InstructionPerColumn int, slicing *AddrSlicing) *ImageGenerator {
@@ -97,7 +97,7 @@ func NewImageGenerator(Height, InstructionPerColumn int, slicing *AddrSlicing) *
 		lastAccess:           nil,
 		yPositioners:         positioners,
 		yPos:                 make([]int, len(positioners)),
-		Beta: 50.0,
+		Beta:                 50.0,
 	}
 
 	ret.pushNewRow()
@@ -150,7 +150,7 @@ func (i *ImageGenerator) HandleCheckpoint(checkpoint *Checkpoint) error {
 	return nil
 }
 
-func (i * ImageGenerator) GenerateImage() *image.RGBA {
+func (i *ImageGenerator) GenerateImage() *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, i.Width, i.Height))
 	ipc := float32(i.InstructionPerColumn)
 
@@ -160,13 +160,13 @@ func (i * ImageGenerator) GenerateImage() *image.RGBA {
 			acc := i.buff[x][y]
 			t := float32(acc.NI + acc.NR + acc.NW)
 
-			r := uint8((float32(acc.NW)/ t) * 255.0)
-			b := uint8((float32(acc.NR)/ t) * 255.0)
-			g := uint8((float32(acc.NI)/ t) * 255.0)
+			r := uint8((float32(acc.NW) / t) * 255.0)
+			b := uint8((float32(acc.NR) / t) * 255.0)
+			g := uint8((float32(acc.NI) / t) * 255.0)
 			a := uint8(i.Beta * (t / ipc) * 255.0)
 
-			px := color.RGBA{r,g,b,a}
-			img.Set(x, i.Height - y, px)
+			px := color.RGBA{r, g, b, a}
+			img.Set(x, i.Height-y, px)
 		}
 	}
 
@@ -174,7 +174,7 @@ func (i * ImageGenerator) GenerateImage() *image.RGBA {
 	for _, c := range i.checkpoints {
 		x := c.XPos
 		for y := 0; y < i.Height; y++ {
-			img.Set(x, y, color.RGBA{0,0,0, 127})
+			img.Set(x, y, color.RGBA{0, 0, 0, 127})
 		}
 	}
 

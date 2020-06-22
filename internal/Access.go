@@ -1,6 +1,6 @@
 package internal
 
-import "memrec/internal/flatbuffers"
+import "github.com/cedric-courtaud/memviz/internal/flatbuffers"
 
 type Access struct {
 	AccessType flatbuffers.AccessType
@@ -9,7 +9,6 @@ type Access struct {
 	InstBefore uint64
 }
 
-func (a * Access) VisitHandler (handler EventHandler) {
+func (a *Access) VisitHandler(handler EventHandler) {
 	handler.HandleAccess(a)
 }
-

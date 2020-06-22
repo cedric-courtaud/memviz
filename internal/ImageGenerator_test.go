@@ -1,15 +1,14 @@
 package internal
 
 import (
+	"github.com/cedric-courtaud/memviz/internal/flatbuffers"
 	"github.com/stretchr/testify/assert"
-	"memrec/internal/flatbuffers"
 	"testing"
 )
 
 func TestImageGenerator_getXPos(t *testing.T) {
 	slicing, _ := ParseAddrSlicing("8:8:11:5")
 	generator := NewImageGenerator(10, 10, slicing)
-
 
 	assert.Equal(t, generator.getXPos(1), 0)
 	assert.Equal(t, generator.getXPos(10), 1)
@@ -42,8 +41,8 @@ func TestImageGenerator_HandleAccess(t *testing.T) {
 	// C0
 	generator.HandleAccess(&Access{
 		AccessType: flatbuffers.AccessTypeI,
-		DestAddr: 0x0,
-		InstAddr: 0x0,
+		DestAddr:   0x0,
+		InstAddr:   0x0,
 		InstBefore: 0,
 	})
 
@@ -51,24 +50,24 @@ func TestImageGenerator_HandleAccess(t *testing.T) {
 
 	generator.HandleAccess(&Access{
 		AccessType: flatbuffers.AccessTypeR,
-		DestAddr: 0x8,
-		InstAddr: 0x0,
+		DestAddr:   0x8,
+		InstAddr:   0x0,
 		InstBefore: 50,
 	})
 	// C1
 	// + 0x4
 	generator.HandleAccess(&Access{
 		AccessType: flatbuffers.AccessTypeW,
-		DestAddr: 0xc,
-		InstAddr: 0x0,
+		DestAddr:   0xc,
+		InstAddr:   0x0,
 		InstBefore: 50,
 	})
 
 	// + 0x4
 	generator.HandleAccess(&Access{
 		AccessType: flatbuffers.AccessTypeR,
-		DestAddr: 0x0,
-		InstAddr: 0x0,
+		DestAddr:   0x0,
+		InstAddr:   0x0,
 		InstBefore: 50,
 	})
 
