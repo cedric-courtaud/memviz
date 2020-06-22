@@ -21,23 +21,28 @@ type AddrSlice struct {
 	begin uint
 	end uint
 	mask uint64
+	nVal uint64
 }
 
 type AddrSlicing struct {
+	Total int
 	Slices []*AddrSlice
 }
 
 func NewAddrSlice (begin, end uint) *AddrSlice {
+	mask := setBits(0, end - begin, begin)
 	return &AddrSlice {
 		begin,
 		end,
-		setBits(0, end - begin, begin),
+		mask,
+		(mask >> begin) + 1,
 	}
 }
 
 func ParseAddrSlicing(specStr string) (*AddrSlicing, error) {
 	tokens := strings.Split(specStr, ":")
 	lengths := make([]uint, len(tokens))
+	total := 0
 
 	for i, token := range tokens {
 		length, err := strconv.ParseUint(token, 10, 8)
@@ -45,6 +50,7 @@ func ParseAddrSlicing(specStr string) (*AddrSlicing, error) {
 			return nil, err
 		}
 		lengths[i] = uint(length)
+		total += int(length)
 	}
 
 	var slices []*AddrSlice
@@ -56,7 +62,7 @@ func ParseAddrSlicing(specStr string) (*AddrSlicing, error) {
 		begin += lengths[i]
 	}
 
-	return &AddrSlicing{slices}, nil
+	return &AddrSlicing{total, slices}, nil
 }
 
 

@@ -79,8 +79,9 @@ func (p *EventParser) Parse(reader * bufio.Reader) error {
 	go p.start(done, errc, queue)
 
 	for scanner.Scan() {
-		var buff []byte
-		copy(buff, scanner.Bytes())
+		line := scanner.Bytes()
+		buff := make([]byte, len(line))
+		copy(buff, line)
 		queue <- buff
 
 		select {
