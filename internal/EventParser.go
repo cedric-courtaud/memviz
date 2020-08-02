@@ -33,7 +33,7 @@ func (p *EventParser) parseLine(line []byte) error {
 		}
 		p.Handler.HandleCheckpoint(&Checkpoint{id, p.pos, accessBefore})
 
-	} else if bytes.Equal(fields[0], []byte("C")) {
+	} else if bytes.Equal(fields[0], []byte("F")) {
 		pid, err := strconv.ParseUint(string(fields[1]), 0, 32)
 		if err != nil {
 			return err
