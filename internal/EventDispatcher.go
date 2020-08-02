@@ -2,18 +2,18 @@ package internal
 
 type EventDispatcher struct {
 	eventQueue chan Event
-	Handlers []*EventQueue
+	Handlers   []*EventQueue
 }
 
 func NewEventDispatcher() *EventDispatcher {
 	return &EventDispatcher{eventQueue: make(chan Event)}
 }
 
-func (e * EventDispatcher) AddHandler(handler EventHandler) {
+func (e *EventDispatcher) AddHandler(handler EventHandler) {
 	e.Handlers = append(e.Handlers, NewEventQueue(handler))
 }
 
-func (e * EventDispatcher) HandleAccess(access *Access) error {
+func (e *EventDispatcher) HandleAccess(access *Access) error {
 	for _, q := range e.Handlers {
 		q.Queue <- access
 	}
@@ -21,11 +21,15 @@ func (e * EventDispatcher) HandleAccess(access *Access) error {
 	return nil
 }
 
-func (e * EventDispatcher) HandleCheckpoint(checkpoint *Checkpoint) error {
+func (e *EventDispatcher) HandleCheckpoint(checkpoint *Checkpoint) error {
 	for _, q := range e.Handlers {
 		q.Queue <- checkpoint
 	}
 
+	return nil
+}
+
+func (e *EventDispatcher) HandleForked(forked *Forked) error {
 	return nil
 }
 
@@ -40,7 +44,7 @@ func (e *EventDispatcher) Start() {
 func (e *EventDispatcher) Stop() {
 	for _, q := range e.Handlers {
 		q.Stop()
-		<- q.Done
+		<-q.Done
 	}
 
 	close(e.eventQueue)
@@ -59,4 +63,3 @@ func (e *EventDispatcher) Finalize() {
 		handler.Finalize()
 	}
 }
-

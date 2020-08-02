@@ -50,6 +50,10 @@ func (f *FlatBuffersRecorder) HandleCheckpoint(checkpoint *Checkpoint) error {
 	return nil
 }
 
+func (f *FlatBuffersRecorder) HandleForked(forked *Forked) error {
+	return nil
+}
+
 func (f *FlatBuffersRecorder) Start() {
 }
 

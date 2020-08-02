@@ -158,6 +158,10 @@ func (s *StreamStats) HandleCheckpoint(checkpoint *Checkpoint) error {
 	return nil
 }
 
+func (s *StreamStats) HandleForked(forked *Forked) error {
+	return nil
+}
+
 func (s StreamStats) WriteSummary(writer io.Writer) error {
 	w := new(tabwriter.Writer)
 	w.Init(writer, 0, 0, 2, ' ', tabwriter.AlignRight)

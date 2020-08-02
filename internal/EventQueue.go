@@ -1,8 +1,8 @@
 package internal
 
 type EventQueue struct {
-	Queue chan Event
-	Done chan bool
+	Queue   chan Event
+	Done    chan bool
 	handler EventHandler
 }
 
@@ -18,12 +18,18 @@ func (e *EventQueue) Stop() {
 	close(e.Queue)
 }
 
-func (e *EventQueue) Finalize(){
+func (e *EventQueue) Finalize() {
 	e.handler.Finalize()
 }
 
 func (e *EventQueue) HandleAccess(access *Access) error {
 	e.Queue <- access
+	return nil
+}
+
+func (e *EventQueue) HandleForked(forked *Forked) error {
+	e.Queue <- forked
+
 	return nil
 }
 

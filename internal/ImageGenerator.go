@@ -150,6 +150,10 @@ func (i *ImageGenerator) HandleCheckpoint(checkpoint *Checkpoint) error {
 	return nil
 }
 
+func (i *ImageGenerator) HandleForked(f *Forked) error {
+	return nil
+}
+
 func (i *ImageGenerator) GenerateImage() *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, i.Width, i.Height))
 	ipc := float32(i.InstructionPerColumn)

@@ -33,6 +33,24 @@ func (p *EventParser) parseLine(line []byte) error {
 		}
 		p.Handler.HandleCheckpoint(&Checkpoint{id, p.pos, accessBefore})
 
+	} else if bytes.Equal(fields[0], []byte("C")) {
+		pid, err := strconv.ParseUint(string(fields[1]), 0, 32)
+		if err != nil {
+			return err
+		}
+
+		ppid, err := strconv.ParseUint(string(fields[1]), 0, 32)
+		if err != nil {
+			return err
+		}
+
+		count, err := strconv.ParseUint(string(fields[1]), 0, 64)
+		if err != nil {
+			return err
+		}
+
+		p.Handler.HandleForked(&Forked{uint32(pid), uint32(ppid), count})
+
 	} else if accessType, ok := flatbuffers.EnumValuesAccessType[string(fields[0])]; ok {
 		instAddr, err := strconv.ParseUint(string(fields[1]), 0, 64)
 		if err != nil {
@@ -59,9 +77,9 @@ func (p *EventParser) parseLine(line []byte) error {
 	return nil
 }
 
-func (p *EventParser) start(done chan bool, errc chan error, queue chan []byte) {
+func (p *EventParser) start(done chan bool, errc chan error, queue chan string) {
 	for line := range queue {
-		err := p.parseLine(line)
+		err := p.parseLine([]byte(line))
 		if err != nil {
 			errc <- err
 		}
@@ -73,16 +91,14 @@ func (p *EventParser) start(done chan bool, errc chan error, queue chan []byte) 
 func (p *EventParser) Parse(reader *bufio.Reader) error {
 	scanner := bufio.NewScanner(reader)
 	done := make(chan bool)
-	queue := make(chan []byte)
+	queue := make(chan string, 256)
 	errc := make(chan error, 1)
 
 	go p.start(done, errc, queue)
 
 	for scanner.Scan() {
-		line := scanner.Bytes()
-		buff := make([]byte, len(line))
-		copy(buff, line)
-		queue <- buff
+		line := scanner.Text()
+		queue <- line
 
 		select {
 		case err := <-errc:

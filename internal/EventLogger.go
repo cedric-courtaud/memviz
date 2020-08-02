@@ -29,3 +29,7 @@ func (e *EventLogger) HandleCheckpoint(c *Checkpoint) error {
 	e.Events = append(e.Events, fmt.Sprintf("C %s %d", c.Id, c.InstBefore))
 	return nil
 }
+
+func (e *EventLogger) HandleForked(f *Forked) error {
+	return nil
+}
